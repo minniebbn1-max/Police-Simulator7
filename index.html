@@ -143,6 +143,7 @@
     </div>
 
     <script>
+        // เก็บสถานะการล็อคอิน
         let loginSuccess = false;
 
         function showModal(title, desc, icon, success) {
@@ -154,13 +155,14 @@
             const box = document.querySelector('.modal-box');
             box.style.borderColor = success ? '#00d4ff' : '#ff4d4d';
             
+            // อัปเดตสถานะความสำเร็จ
             loginSuccess = success;
         }
 
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
             
-            // แก้ไขเรียบร้อย: ล็อกอินผ่านแล้วกลับไปหน้าเมนูหลัก (dashboard.html)
+            // ถ้าล็อคอินสำเร็จ ให้เปลี่ยนหน้าไปยัง dashboard.html ทันทีที่ปิดป๊อปอัพ
             if (loginSuccess) {
                 window.location.href = "dashboard.html";
             }
@@ -170,7 +172,6 @@
             const id = document.getElementById('officer_id').value;
             const pass = document.getElementById('pass').value;
 
-            // รหัสผ่านเดิมของท่าน
             if(id === "1234" && pass === "9999") {
                 showModal(
                     "ยืนยันตัวตนสำเร็จ", 
@@ -191,4 +192,5 @@
     </script>
 </body>
 </html>
+
 
