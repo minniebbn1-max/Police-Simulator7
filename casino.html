@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ORC LUXURY CASINO - MULTI ROOM</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #0a0e14; color: #fff; font-family: 'Kanit', sans-serif;
+            margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
+        }
+        .casino-header {
+            width: 100%; max-width: 400px; background: linear-gradient(90deg, #d4af37, #f9e29c);
+            color: #000; padding: 15px; text-align: center; font-weight: bold;
+            border-radius: 15px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .game-tabs { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; max-width: 400px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+
+        .stats-bar {
+            width: 100%; max-width: 400px; display: flex; justify-content: space-between;
+            background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 10px; margin-bottom: 20px;
+            align-items: center; font-size: 14px;
+        }
+        .game-area {
+            width: 100%; max-width: 400px; background: #0f172a; border: 2px solid #d4af37;
+            border-radius: 20px; padding: 20px; text-align: center; position: relative;
+        }
+
+        .card-display { display: flex; justify-content: space-between; margin: 20px 0; gap: 10px; }
+
+        .card-slot {
+            width: 80px; height: 110px; position: relative; perspective: 1000px;
+            opacity: 0; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(-150px);
+        }
+        .card-slot.reveal { opacity: 1; transform: translateY(0); }
+
+        .card-inner {
+            position: relative; width: 100%; height: 100%;
+            text-align: center; transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-inner.is-flipped { transform: rotateY(180deg); }
+
+        .card-front, .card-back {
+            position: absolute; width: 100%; height: 100%;
+            -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            border-radius: 8px; border: 2px solid #334155;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .card-front { background: #fff; color: #000; font-size: 28px; font-weight: bold; transform: rotateY(180deg); }
+        .card-back {
+            background: radial-gradient(circle, #8a0000, #4a0000);
+            background-image: repeating-linear-gradient(45deg, rgba(255,215,0,0.1) 0px, rgba(255,215,0,0.1) 2px, transparent 2px, transparent 10px);
+            border: 2px solid #d4af37; color: #d4af37; font-size: 18px; font-weight: bold;
+        }
+
+        .stats-board {
+            width: 100%; max-width: 400px; background: #070b13;
+            border: 1px solid #334155; border-radius: 10px; margin-top: 15px; padding: 10px;
+        }
+        .board-title { font-size: 12px; color: #888; text-align: left; margin-bottom: 5px; text-transform: uppercase; }
+        .grid-container {
+            display: grid; grid-template-columns: repeat(10, 1fr);
+            gap: 5px; height: 70px; overflow-x: auto; overflow-y: hidden; padding-bottom: 5px;
+        }
+        .stat-dot {
+            width: 25px; height: 25px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;
+        }
+        .dot-p { background: #3b82f6; color: white; }
+        .dot-b { background: #ef4444; color: white; }
+        .dot-t { background: #22c55e; color: white; }
+
+        .card-label { font-size: 13px; margin-top: 8px; font-weight: bold; }
+        .bet-controls { margin-top: 20px; width: 100%; }
+        input[type="number"] {
+            width: 100%; padding: 12px; background: #1e293b; border: 1px solid #d4af37;
+            color: #fff; border-radius: 10px; text-align: center; font-size: 18px; margin-bottom: 15px;
+        }
+        .bet-buttons { display: flex; gap: 10px; }
+        .btn-bet {
+            flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold;
+            cursor: pointer; transition: 0.2s; font-size: 16px; color: #fff;
+        }
+        .btn-player { background: #3b82f6; box-shadow: 0 4px #1d4ed8; }
+        .btn-banker { background: #ef4444; box-shadow: 0 4px #b91c1c; }
+        .btn-bet:active { transform: translateY(2px); box-shadow: 0 0px transparent; }
+        .btn-bet:disabled { opacity: 0.3; filter: grayscale(1); cursor: not-allowed; transform: none !important; }
+
+        .result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 100;
+        }
+        .result-text { font-size: 45px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="casino-header">💎 ORC LUXURY CASINO 💎</div>
+
+    <div class="game-tabs">
+        <button id="tab-baccarat" class="tab-btn" style="background: #d4af37; color: #000;" onclick="switchGame('baccarat')">BACCARAT</button>
+        <button id="tab-dragon" class="tab-btn" style="background: #1e293b; color: #fff;" onclick="switchGame('dragon')">DRAGON TIGER</button>
+    </div>
+
+    <div class="stats-bar">
+        <span>💰 <span id="user-money" style="color:#00ff88;">0</span> ฿</span>
+        <span id="timer-display" style="color:#ffcc00; font-weight:bold;">⏳ รอเดิมพัน</span>
+        <span>🎴 ไพ่: <span id="deck-count">52</span></span>
+    </div>
+
+    <div class="game-area">
+        <div class="card-display">
+            <div>
+                <div style="display:flex; gap:5px;">
+                    <div class="card-slot" id="p-card-1"><div class="card-inner"><div class="card-back">ORC</div><div class="card-front"></div></div></div>
+                    <div class="card-slot" id="p-card-2"><div class="card-inner"><div class="card-back">ORC</div><div class="card-front"></div></div></div>
+                </div>
+                <div class="card-label" id="label-left" style="color:#3b82f6;">PLAYER: <span id="p-score">0</span></div>
+            </div>
+            <div>
+                <div style="display:flex; gap:5px;">
+                    <div class="card-slot" id="b-card-1"><div class="card-inner"><div class="card-back">ORC</div><div class="card-front"></div></div></div>
+                    <div class="card-slot" id="b-card-2"><div class="card-inner"><div class="card-back">ORC</div><div class="card-front"></div></div></div>
+                </div>
+                <div class="card-label" id="label-right" style="color:#ef4444;">BANKER: <span id="b-score">0</span></div>
+            </div>
+        </div>
+
+        <div class="bet-controls">
+            <input type="number" id="bet-amount" value="1000" min="100">
+            <div class="bet-buttons">
+                <button id="btn-left" class="btn-bet btn-player" onclick="placeBet('left')">PLAYER</button>
+                <button id="btn-right" class="btn-bet btn-banker" onclick="placeBet('right')">BANKER</button>
+            </div>
+        </div>
+
+        <div class="stats-board">
+            <div class="board-title">📊 สถิติเค้าไพ่ (Bead Plate)</div>
+            <div class="grid-container" id="stats-grid"></div>
+        </div>
+    </div>
+
+    <button onclick="location.href='dashboard.html'" style="margin-top:20px; background:none; border:none; color:#555; cursor:pointer;">🔙 กลับหน้าหลัก</button>
+
+    <div class="result-overlay" id="result-screen">
+        <div id="res-title" class="result-text">WIN!</div>
+        <div id="res-detail" style="font-size: 22px; margin-bottom: 30px; text-align:center;"></div>
+        <button class="btn-bet" style="background:#d4af37; color:#000; padding:12px 50px; flex:none;" onclick="closeResult()">ถัดไป</button>
+    </div>
+
+    <script>
+        let deck = [];
+        let timeLeft = 5;
+        let timerId = null;
+        let currentBetSide = null;
+        let betLocked = false;
+        let currentGame = 'baccarat';
+        
+        // --- แยกสถิติเด็ดขาด ---
+        let stats = { baccarat: [], dragon: [] };
+
+        const suits = ['♠️', '♥️', '♣️', '♦️'];
+        const values = [
+            {n:'A', v:1}, {n:'2', v:2}, {n:'3', v:3}, {n:'4', v:4}, {n:'5', v:5},
+            {n:'6', v:6}, {n:'7', v:7}, {n:'8', v:8}, {n:'9', v:9}, {n:'10', v:0},
+            {n:'J', v:0}, {n:'Q', v:0}, {n:'K', v:0}
+        ];
+
+        function createDeck() {
+            deck = [];
+            for (let s of suits) {
+                for (let v of values) {
+                    deck.push({ suit: s, name: v.n, value: v.v });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5);
+            updateUI();
+        }
+
+        function switchGame(game) {
+            if (timerId) clearInterval(timerId);
+            currentGame = game;
+            
+            document.getElementById('tab-baccarat').style.background = (game === 'baccarat') ? '#d4af37' : '#1e293b';
+            document.getElementById('tab-baccarat').style.color = (game === 'baccarat') ? '#000' : '#fff';
+            document.getElementById('tab-dragon').style.background = (game === 'dragon') ? '#d4af37' : '#1e293b';
+            document.getElementById('tab-dragon').style.color = (game === 'dragon') ? '#000' : '#fff';
+
+            // ล้างจอแล้วโหลดสถิติเฉพาะห้อง
+            document.getElementById('stats-grid').innerHTML = '';
+            stats[game].forEach(res => renderDot(res));
+
+            if (game === 'dragon') {
+                document.getElementById('label-left').innerHTML = 'DRAGON: <span id="p-score">0</span>';
+                document.getElementById('label-right').innerHTML = 'TIGER: <span id="b-score">0</span>';
+                document.getElementById('btn-left').innerText = 'DRAGON';
+                document.getElementById('btn-right').innerText = 'TIGER';
+                document.getElementById('p-card-2').style.display = 'none';
+                document.getElementById('b-card-2').style.display = 'none';
+            } else {
+                document.getElementById('label-left').innerHTML = 'PLAYER: <span id="p-score">0</span>';
+                document.getElementById('label-right').innerHTML = 'BANKER: <span id="b-score">0</span>';
+                document.getElementById('btn-left').innerText = 'PLAYER';
+                document.getElementById('btn-right').innerText = 'BANKER';
+                document.getElementById('p-card-2').style.display = 'block';
+                document.getElementById('b-card-2').style.display = 'block';
+            }
+            startCountdown();
+        }
+
+        function updateUI() {
+            let money = parseInt(localStorage.getItem('police_money')) || 0;
+            document.getElementById('user-money').innerText = money.toLocaleString();
+            document.getElementById('deck-count').innerText = deck.length;
+        }
+
+        function startCountdown() {
+            resetTable();
+            timeLeft = 5;
+            betLocked = false;
+            currentBetSide = null;
+            document.getElementById('btn-left').disabled = false;
+            document.getElementById('btn-right').disabled = false;
+
+            timerId = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-display').innerText = `⏳ วางเดิมพัน: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    lockBets();
+                    startDealing();
+                }
+            }, 1000);
+        }
+
+        function lockBets() {
+            betLocked = true;
+            document.getElementById('btn-left').disabled = true;
+            document.getElementById('btn-right').disabled = true;
+            document.getElementById('timer-display').innerText = "🚫 ปิดรับเดิมพัน";
+        }
+
+        function placeBet(side) {
+            let amount = parseInt(document.getElementById('bet-amount').value);
+            let money = parseInt(localStorage.getItem('police_money')) || 0;
+            if (isNaN(amount) || amount < 100) return alert("ขั้นต่ำ 100 ฿");
+            if (amount > money) return alert("งบไม่พอ!");
+            currentBetSide = side;
+            localStorage.setItem('police_money', money - amount);
+            updateUI();
+            lockBets();
+            document.getElementById('timer-display').innerText = `✅ แทงสำเร็จ`;
+        }
+
+        async function startDealing() {
+            if (deck.length < 10) createDeck();
+            
+            if (currentGame === 'dragon') {
+                let d1 = deck.pop(); let t1 = deck.pop();
+                dropClosedCard('p-card-1', d1); await sleep(200); dropClosedCard('b-card-1', t1);
+                await sleep(1000);
+                await flipCard('p-card-1', d1, 'p-score', d1.value);
+                await flipCard('b-card-1', t1, 'b-score', t1.value);
+
+                setTimeout(() => {
+                    let win = (d1.value > t1.value && currentBetSide === 'left') || (t1.value > d1.value && currentBetSide === 'right');
+                    let tie = (d1.value === t1.value);
+                    updateStatsBoard(tie ? 'tie' : (d1.value > t1.value ? 'player' : 'banker'));
+                    showFinalResult(win, tie, parseInt(document.getElementById('bet-amount').value));
+                }, 800);
+            } else {
+                let p1 = deck.pop(); let b1 = deck.pop();
+                let p2 = deck.pop(); let b2 = deck.pop();
+                dropClosedCard('p-card-1', p1); await sleep(200); dropClosedCard('b-card-1', b1);
+                await sleep(200); dropClosedCard('p-card-2', p2); await sleep(200); dropClosedCard('b-card-2', b2);
+                await sleep(1000);
+                await flipCard('p-card-1', p1, 'p-score', p1.value);
+                await flipCard('b-card-1', b1, 'b-score', b1.value);
+                await flipCard('p-card-2', p2, 'p-score', p1.value + p2.value);
+                await flipCard('b-card-2', b2, 'b-score', b1.value + b2.value);
+
+                setTimeout(() => {
+                    let pT = (p1.value + p2.value) % 10;
+                    let bT = (b1.value + b2.value) % 10;
+                    let win = (pT > bT && currentBetSide === 'left') || (bT > pT && currentBetSide === 'right');
+                    let tie = (pT === bT);
+                    updateStatsBoard(tie ? 'tie' : (pT > bT ? 'player' : 'banker'));
+                    showFinalResult(win, tie, parseInt(document.getElementById('bet-amount').value));
+                }, 800);
+            }
+        }
+
+        function dropClosedCard(slotId, cardObj) {
+            const slot = document.getElementById(slotId);
+            slot.querySelector('.card-front').innerHTML = `<span style="font-size:14px; position:absolute; top:5px; left:5px;">${cardObj.suit}</span>${cardObj.name}`;
+            slot.classList.add('reveal');
+        }
+
+        function flipCard(slotId, cardObj, scoreId, currentSum) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const slot = document.getElementById(slotId);
+                    if(slot.style.display !== 'none') {
+                        slot.querySelector('.card-inner').classList.add('is-flipped');
+                        document.getElementById(scoreId).innerText = currentSum % 10;
+                    }
+                    resolve();
+                }, 800);
+            });
+        }
+
+        function updateStatsBoard(result) {
+            stats[currentGame].push(result);
+            renderDot(result);
+        }
+
+        function renderDot(result) {
+            const grid = document.getElementById('stats-grid');
+            const dot = document.createElement('div');
+            dot.className = 'stat-dot';
+            if (result === 'player') { dot.classList.add('dot-p'); dot.innerText = (currentGame === 'dragon' ? 'D' : 'P'); }
+            else if (result === 'banker') { dot.classList.add('dot-b'); dot.innerText = (currentGame === 'dragon' ? 'T' : 'B'); }
+            else { dot.classList.add('dot-t'); dot.innerText = 'T'; }
+            grid.appendChild(dot);
+            grid.scrollLeft = grid.scrollWidth;
+        }
+
+        function showFinalResult(win, tie, amount) {
+            const screen = document.getElementById('result-screen');
+            const title = document.getElementById('res-title');
+            const detail = document.getElementById('res-detail');
+            let money = parseInt(localStorage.getItem('police_money')) || 0;
+            screen.style.display = 'flex';
+
+            if (!currentBetSide) {
+                title.innerText = "👀 นั่งดูเฉยๆ?";
+                title.style.color = "#888";
+                detail.innerHTML = "<span style='color:#ffcc00;'>กรุณาวางเดิมพันเพื่อทำกำไร!</span><br>อย่ามัวแต่มองเค้าไพ่เพลิน";
+            } else if (tie) {
+                title.innerText = "TIE (เสมอ)"; title.style.color = "#ffcc00";
+                detail.innerText = `คืนทุน ${amount.toLocaleString()} ฿`;
+                localStorage.setItem('police_money', money + amount);
+            } else if (win) {
+                title.innerText = "YOU WIN!"; title.style.color = "#00ff88";
+                detail.innerText = `ได้รับเงิน +${(amount * 2).toLocaleString()} ฿`;
+                localStorage.setItem('police_money', money + (amount * 2));
+            } else {
+                title.innerText = "YOU LOST"; title.style.color = "#ef4444";
+                detail.innerText = `เสียเงิน -${amount.toLocaleString()} ฿`;
+            }
+            updateUI();
+        }
+
+        function resetTable() {
+            ['p-card-1', 'p-card-2', 'b-card-1', 'b-card-2'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('reveal');
+                el.querySelector('.card-inner').classList.remove('is-flipped');
+            });
+            document.getElementById('p-score').innerText = "0";
+            document.getElementById('b-score').innerText = "0";
+        }
+
+        function closeResult() {
+            document.getElementById('result-screen').style.display = 'none';
+            startCountdown();
+        }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+        createDeck();
+        window.onload = () => switchGame('baccarat');
+    </script>
+</body>
+</html>

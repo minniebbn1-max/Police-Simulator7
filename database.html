@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CRIMINAL DATABASE - EXECUTIVE CEO PAO</title>
+    <style>
+        /* CSS เดิมของท่านทั้งหมดคงไว้ */
+        * { box-sizing: border-box; }
+        body {
+            background-color: #04080c;
+            color: #fff;
+            font-family: 'Kanit', sans-serif;
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .db-header { width: 100%; max-width: 500px; background: #111; border-bottom: 2px solid #ff4d4d; padding: 15px; text-align: center; margin-bottom: 20px; }
+        .sub-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 500px; margin-bottom: 20px; }
+        .sub-btn { background: #16212e; border: 1px solid #00d4ff; color: #fff; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; text-align: center; transition: 0.3s; }
+        .sub-btn:active { background: #00d4ff; color: #000; }
+        .criminal-list { width: 100%; max-width: 500px; }
+        .criminal-card { background: #0a0e14; border: 1px solid #222; display: flex; padding: 15px; border-radius: 12px; margin-bottom: 10px; align-items: center; position: relative; cursor: pointer; }
+        .wanted-stamp { position: absolute; right: 10px; top: 10px; border: 2px solid #ff4d4d; color: #ff4d4d; padding: 2px 5px; border-radius: 5px; font-size: 10px; font-weight: bold; transform: rotate(15deg); }
+        .criminal-img { width: 60px; height: 60px; background: #222; border-radius: 5px; margin-right: 15px; display: flex; justify-content: center; align-items: center; font-size: 30px; }
+        .criminal-info h4 { margin: 0; color: #ff4d4d; }
+        .criminal-info p { margin: 5px 0 0; font-size: 12px; color: #888; }
+        .special-case-section { width: 100%; max-width: 500px; background: linear-gradient(145deg, #200, #000); padding: 20px; border-radius: 15px; border: 1px dashed #ff4d4d; text-align: center; margin-top: 20px; }
+        .timer-display { font-size: 24px; color: #ff4d4d; font-weight: bold; margin: 10px 0; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-box { background: #111; border: 2px solid #ff4d4d; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; text-align: center; }
+        .loading-bar { width: 100%; height: 5px; background: #222; border-radius: 5px; margin-top: 10px; overflow: hidden; }
+        .loading-fill { width: 0%; height: 100%; background: #ff4d4d; transition: width 0.5s; }
+        .back-btn { margin-top: 20px; background: none; border: 1px solid #444; color: #888; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="db-header">
+        <h2 style="margin:0; font-size: 18px; color: #ff4d4d;">🚔 INTELLIGENCE DATABASE</h2>
+        <p style="margin:5px 0 0; font-size: 10px; color: #555;">เข้าถึงโดย: EXECUTIVE CEO PAO</p>
+    </div>
+
+    <div class="sub-menu">
+        <button class="sub-btn" onclick="alert('แสดงรายชื่อผู้ต้องหาทั้งหมด')">หมายจับ (Wanted)</button>
+        <button class="sub-btn" onclick="alert('ข้อมูลเครือข่ายยาเสพติดและฟอกเงิน')">เครือข่ายแก๊ง</button>
+        <button class="sub-btn" onclick="showHistory()">ประวัติคดี</button>
+        <button class="sub-btn" onclick="alert('วิเคราะห์จุดเกิดเหตุซ้ำซาก')">แผนที่ความเสี่ยง</button>
+    </div>
+
+    <div class="criminal-list">
+        <div class="criminal-card" onclick="viewDetails('ไอ้เสือ ดอนเมือง', 'ชิงทรัพย์, ฟอกเงิน', '150,000', '👤', 'หลบหนีเขตสายไหม')">
+            <div class="wanted-stamp">WANTED</div>
+            <div class="criminal-img">👤</div>
+            <div class="criminal-info">
+                <h4>ไอ้เสือ ดอนเมือง</h4>
+                <p>คดี: ชิงทรัพย์และฟอกเงิน</p>
+                <p style="color: #00ff88;">รางวัลนำจับ: 150,000 ฿</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="special-case-section" id="special-section">
+        <h3 style="margin:0; font-size: 16px; color: #ffcc00;">🚨 ภารกิจสืบสวนลับ (Special)</h3>
+        <p id="case-status" style="font-size: 12px; color: #aaa;">วิเคราะห์พิกัดโดยระบบดาวเทียม</p>
+        <div class="timer-display" id="timer">02:00</div>
+        <div class="loading-bar"><div class="loading-fill" id="fill"></div></div>
+        <button class="sub-btn" id="start-btn" style="margin-top:15px; width:100%; background:#ff4d4d; border:none; color:#000; font-weight:bold;" onclick="startInvestigation()">เริ่มสุ่มคดีสำคัญ</button>
+    </div>
+
+    <button class="back-btn" onclick="location.href='dashboard.html'">ย้อนกลับ</button>
+
+    <div class="modal-overlay" id="main-modal">
+        <div class="modal-box">
+            <div id="m-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
+            <h3 id="m-title" style="color: #ff4d4d; margin: 0;"></h3>
+            <div id="m-desc" style="margin: 15px 0; text-align: left; font-size: 13px; color: #ccc;"></div>
+            <div id="m-footer"></div>
+        </div>
+    </div>
+
+    <script>
+        const mainModal = document.getElementById('main-modal');
+
+        // --- CORE: ฟังก์ชันหักของที่แก้ใหม่ (หักจาก user_inventory) ---
+        function deployUnitWithCheck(locationName, rewardAmount, requiredItemName) {
+            let inventory = JSON.parse(localStorage.getItem('user_inventory')) || [];
+            
+            // ค้นหาไอเทมในคลังตามชื่อ
+            let itemIndex = inventory.findIndex(item => item.name === requiredItemName);
+
+            if (itemIndex !== -1 && inventory[itemIndex].durability > 0) {
+                // หักค่าความทนทาน
+                inventory[itemIndex].durability -= 1;
+                
+                // เซฟกลับลง user_inventory
+                localStorage.setItem('user_inventory', JSON.stringify(inventory));
+                
+                console.log(`[LOG] หัก ${requiredItemName} เหลือ ${inventory[itemIndex].durability}`);
+                
+                // ทำงานต่อ
+                deployUnit(locationName, rewardAmount);
+            } else {
+                alert(`⚠️ ท่าน CEO! "${requiredItemName}" ของท่านหมดแล้ว โปรดซื้อใหม่ที่ห้องแต่งตัว`);
+                closeModal();
+            }
+        }
+
+        function viewDetails(name, crime, reward, img, bio) {
+            document.getElementById('m-icon').innerText = img;
+            document.getElementById('m-title').innerText = name;
+            document.getElementById('m-desc').innerHTML = `<b>ฐานความผิด:</b> ${crime}<br><b>เงินรางวัล: ${reward} ฿</b>`;
+            document.getElementById('m-footer').innerHTML = `<button class="sub-btn" style="width:100%" onclick="closeModal()">ปิด</button>`;
+            mainModal.style.display = 'flex';
+        }
+
+        function closeModal() { mainModal.style.display = 'none'; }
+
+        // ระบบ Timer สุ่มคดี
+        function startInvestigation() {
+            const finishTime = Date.now() + (120 * 1000);
+            localStorage.setItem('invest_finish', finishTime);
+            localStorage.setItem('invest_active', 'true');
+            runTimer();
+        }
+
+        function runTimer() {
+            const finishTime = localStorage.getItem('invest_finish');
+            const isActive = localStorage.getItem('invest_active');
+            if (isActive === 'true' && finishTime) {
+                let timerId = setInterval(() => {
+                    const now = Date.now();
+                    const diff = Math.floor((finishTime - now) / 1000);
+                    if (diff <= 0) {
+                        clearInterval(timerId);
+                        finishInvestigation();
+                    } else {
+                        let mins = Math.floor(diff / 60);
+                        let secs = diff % 60;
+                        document.getElementById('timer').innerText = (mins < 10 ? "0"+mins : mins) + ":" + (secs < 10 ? "0"+secs : secs);
+                    }
+                }, 1000);
+            }
+        }
+
+        function finishInvestigation() {
+            localStorage.removeItem('invest_active');
+            const reward = 500000;
+            const loc = "โกดังร้าง ย่านบางนา";
+
+            document.getElementById('m-icon').innerText = "📍";
+            document.getElementById('m-title').innerText = "พิกัดชัดเจน!";
+            document.getElementById('m-desc').innerHTML = `
+                <b>เป้าหมาย:</b> ${loc}<br>
+                <b>รางวัล:</b> ${reward.toLocaleString()} ฿<br><br>
+                <span style="color:#ffcc00">คดีนี้ต้องใช้: รถหุ้มเกราะ</span>
+            `;
+            
+            // *** จุดสำคัญ: ใส่ชื่อไอเทมให้ตรงกับในคลัง (เช่น 'รถหุ้มเกราะ') ***
+            document.getElementById('m-footer').innerHTML = `
+                <button class="sub-btn" style="width:100%; background:#00d4ff; color:#000;" 
+                onclick="deployUnitWithCheck('${loc}', ${reward}, 'รถหุ้มเกราะ')">ส่งหน่วยจู่โจม</button>
+            `;
+            mainModal.style.display = 'flex';
+        }
+
+        function deployUnit(locationName, rewardAmount) {
+            let money = parseInt(localStorage.getItem('police_money')) || 0;
+            money += rewardAmount;
+            localStorage.setItem('police_money', money);
+
+            document.getElementById('m-icon').innerText = "✅";
+            document.getElementById('m-title').innerText = "MISSION SUCCESS";
+            document.getElementById('m-desc').innerHTML = `จู่โจมสำเร็จ! เงินรางวัลเข้าบัญชีแล้ว`;
+            document.getElementById('m-footer').innerHTML = `<button class="sub-btn" style="width:100%" onclick="location.reload()">ยืนยัน</button>`;
+        }
+
+        window.onload = runTimer;
+    </script>
+</body>
+</html>

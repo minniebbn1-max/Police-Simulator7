@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>INTELLIGENCE DATABASE - EXECUTIVE CEO PAO</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #04090f; color: #fff; font-family: 'Kanit', sans-serif;
+            margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+        .header-title { color: #ff4d4d; letter-spacing: 2px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .db-grid { width: 100%; max-width: 500px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .db-item { background: rgba(16, 24, 32, 0.8); border: 1px solid #222; padding: 15px; border-radius: 10px; text-align: center; color: #555; font-size: 13px; }
+        
+        .start-btn {
+            width: 100%; max-width: 400px; margin-top: 30px; padding: 20px;
+            background: linear-gradient(to bottom, #4d1111, #1a0505);
+            border: 2px solid #ff4d4d; border-radius: 15px;
+            color: #ff4d4d; font-weight: bold; font-size: 18px; cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
+            display: block;
+        }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 999; }
+        .report-box { width: 90%; max-width: 350px; background: #0a0e14; border: 2px solid #ff4d4d; border-radius: 20px; padding: 25px; text-align: center; }
+        .report-content { background: #000; border-left: 3px solid #00d4ff; padding: 15px; text-align: left; margin: 15px 0; font-size: 13px; min-height: 80px; }
+        .claim-btn { background: linear-gradient(45deg, #ffcc00, #ff9900); color: #000; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 0 15px rgba(255, 204, 0, 0.3); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div style="font-size: 40px; margin-bottom: 10px;">🗄️</div>
+    <div class="header-title">INTELLIGENCE DATABASE</div>
+    <div style="font-size: 11px; color: #444; margin-bottom: 20px;">ACCESS GRANTED: EXECUTIVE CEO PAO</div>
+
+    <div class="db-grid">
+        <div class="db-item">WANTED LIST</div>
+        <div class="db-item">GANG NETWORK</div>
+        <div class="db-item">CRIME HISTORY</div>
+        <div class="db-item">RISK MAP</div>
+    </div>
+
+    <button class="start-btn" onclick="openMissionReport()">🕵️ เริ่มสุ่มคดีสำคัญ (50/50)</button>
+
+    <button onclick="location.href='dashboard.html'" style="background:none; border:none; color:#555; margin-top:50px; cursor:pointer;">[ ย้อนกลับหน้าหลัก ]</button>
+
+    <div class="modal-overlay" id="mission-result-modal">
+        <div class="report-box" id="modal-box">
+            <div id="status-icon" style="font-size: 60px;">📜</div>
+            <h3 style="color: #00d4ff; margin: 10px 0;">ARCHIVED REPORTS</h3>
+            
+            <div class="report-content" id="result-detail"></div>
+            
+            <button id="claim-bonus-btn" class="claim-btn" style="display:none;">💰 รับรางวัลโบนัส</button>
+            
+            <button onclick="closeModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <script>
+        function openMissionReport() {
+            // 1. สุ่มดวงก่อนเลย 50/50
+            const isSuccess = Math.random() < 0.5;
+            const bounty = 1200000;
+            const timestamp = new Date().toLocaleString('th-TH');
+            
+            // 2. อ้างอิง Element
+            const reportDetail = document.getElementById('result-detail');
+            const claimBtn = document.getElementById('claim-bonus-btn');
+            const modalBox = document.getElementById('modal-box');
+            const icon = document.getElementById('status-icon');
+
+            if (isSuccess) {
+                // กรณีสำเร็จ: ล้างข้อมูลเดิมและใส่เนื้อหาใหม่
+                modalBox.style.borderColor = "#00ff88";
+                icon.innerText = "📜";
+                reportDetail.innerHTML = `
+                    <div style="border-left: 3px solid #00ff88; padding-left: 10px;">
+                        <p style="font-size: 10px; color: #888; margin: 0;">TIMESTAMP: ${timestamp}</p>
+                        <p style="margin: 5px 0;"><b>TARGET:</b> ท้ายซอยเพชรบุรี 12</p>
+                        <p style="margin: 5px 0;"><b>BOUNTY:</b> <span style="color: #00ff88;">${bounty.toLocaleString()} ฿</span></p>
+                        <p style="margin: 5px 0;"><b>STATUS:</b> OPERATIONAL SUCCESS ✅</p>
+                    </div>
+                `;
+                claimBtn.style.display = "block"; // ดึงปุ่มรับโบนัสออกมา
+                claimBtn.onclick = function() {
+                    let money = parseInt(localStorage.getItem('police_money')) || 0;
+                    localStorage.setItem('police_money', money + bounty);
+                    alert("โบนัส 1,200,000 ฿ ถูกโอนเข้าบัญชีของท่านแล้ว!");
+                    closeModal();
+                    location.reload(); // รีเฟรชเพื่ออัปเดตยอดเงิน
+                };
+            } else {
+                // กรณีล้มเหลว: ล้างข้อมูลเดิมและใส่เนื้อหาแจ้งเตือน
+                modalBox.style.borderColor = "#ff4d4d";
+                icon.innerText = "❌";
+                reportDetail.innerHTML = `
+                    <div style="border-left: 3px solid #ff4d4d; padding-left: 10px;">
+                        <p style="font-size: 10px; color: #888; margin: 0;">TIMESTAMP: ${timestamp}</p>
+                        <p style="margin: 5px 0;"><b>TARGET:</b> ท้ายซอยเพชรบุรี 12</p>
+                        <p style="margin: 5px 0;"><b>STATUS:</b> <span style="color: #ff4d4d;">OPERATIONAL FAILED ⚠️</span></p>
+                        <p style="font-size: 11px; color: #666;">*ข้อมูลคลาดเคลื่อน เป้าหมายไหวตัวทัน*</p>
+                    </div>
+                `;
+                claimBtn.style.display = "none"; // ซ่อนปุ่มรับเงิน
+            }
+
+            // สั่งเปิด Modal
+            document.getElementById('mission-result-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('mission-result-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

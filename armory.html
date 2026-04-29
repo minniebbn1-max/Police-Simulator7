@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ARMORY - EXECUTIVE CEO PAO</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #04090f;
+            color: #fff;
+            font-family: 'Kanit', sans-serif;
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .header {
+            width: 100%; max-width: 500px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .money-box {
+            background: #111; padding: 10px 15px; border-radius: 10px;
+            border: 1px solid #00ff88; color: #00ff88; font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
+
+        .armory-grid {
+            width: 100%; max-width: 500px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+
+        .item-card {
+            background: rgba(16, 24, 32, 0.9); border: 1px solid #333;
+            border-radius: 15px; padding: 15px; text-align: center;
+            transition: 0.3s; cursor: pointer; position: relative;
+        }
+        .item-card:active { transform: scale(0.95); border-color: #00d4ff; }
+        
+        .item-icon { font-size: 45px; margin-bottom: 10px; display: block; }
+        .item-name { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #fff; }
+        .item-price { color: #ffcc00; font-size: 14px; font-weight: bold; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.92); display: none;
+            justify-content: center; align-items: center; z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            width: 90%; max-width: 350px; background: #0a0e14;
+            border: 2px solid #00d4ff; border-radius: 20px;
+            padding: 25px; text-align: center;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .detail-text {
+            text-align: left; background: #000; padding: 15px;
+            border-radius: 10px; font-size: 13px; color: #ccc;
+            margin: 15px 0; line-height: 1.6; white-space: pre-line;
+        }
+
+        .action-btn {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            font-weight: bold; font-size: 16px; cursor: pointer; margin-bottom: 10px;
+        }
+        .buy-btn { background: #00d4ff; color: #000; }
+        .buy-btn:active { background: #008fb3; }
+        .close-btn { color: #ff4d4d; background: none; border: none; cursor: pointer; font-size: 14px; }
+
+        .pao-success-box { border-color: #00ff88; box-shadow: 0 0 30px rgba(0, 255, 136, 0.3); }
+        .pao-calc-box {
+            background: #080c12; padding: 15px; border-radius: 10px;
+            border: 1px dashed #444; margin-bottom: 20px; text-align: left;
+        }
+        .pao-stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="header">
+        <button onclick="location.href='dashboard.html'" style="background:none; border:1px solid #333; color:#00d4ff; padding:8px 15px; border-radius:8px; cursor:pointer;">⬅️ กลับหน้าหลัก</button>
+        <div id="money-display" class="money-box">฿ 0</div>
+    </div>
+
+    <h2 style="margin-bottom: 5px; color: #00d4ff; letter-spacing: 2px;">ARMORY</h2>
+    <p style="font-size: 12px; color: #666; margin-bottom: 25px;">คลังแสงปฏิบัติการส่วนกลาง โดย CEO PAO</p>
+
+    <div class="armory-grid" id="item-list"></div>
+
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-box">
+            <div id="m-icon" style="font-size: 60px;"></div>
+            <div id="m-title" style="font-size: 20px; font-weight: bold; margin-top: 10px; color: #00d4ff;"></div>
+            <div class="detail-text" id="m-detail"></div>
+            <button id="buy-action-btn" class="action-btn buy-btn">ยืนยันการสั่งซื้อ</button>
+            <button class="close-btn" onclick="closeModal('confirm-modal')">ยกเลิกรายการ</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-box pao-success-box">
+            <div id="s-icon" style="font-size: 70px; margin-bottom: 15px;">✅</div>
+            <div id="s-title" style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">จัดซื้ออุปกรณ์สำเร็จ!</div>
+            <div id="s-content"></div>
+            <button class="action-btn" style="background:#444; color:#fff;" onclick="closeModal('success-modal')">รับทราบ</button>
+        </div>
+    </div>
+
+    <script>
+        // ดึงเงินจากระบบ (ถ้าไม่มีให้เริ่มที่ 1,000,000 ตามฐานะ CEO)
+        let currentMoney = parseInt(localStorage.getItem('police_money')) || 1000000;
+        const updateMoney = () => document.getElementById('money-display').innerText = "฿ " + currentMoney.toLocaleString();
+        updateMoney();
+
+        // รายการไอเทมชุดใหม่ สเตตัสโหด ราคาแรง
+        const items = [
+            { id: 'armor_heavy', name: "เกราะกันกระสุนหนัก", icon: "🛡️", price: 8500, bonus: 0.15, durability: 5, desc: "• ลดโอกาสบาดเจ็บ 30%\n• โบนัสรางวัล +15%\n• ความทนทาน: 5 ครั้ง" },
+            { id: 'sig_sauer', name: "ปืนพก SIG Sauer", icon: "🔫", price: 15000, bonus: 0.30, durability: 999, desc: "• ปืนมาตรฐานเจ้าหน้าที่\n• โบนัสรางวัล +30%\n• ความทนทาน: ถาวร" },
+            { id: 'exoskeleton', name: "ชุดเสริมพลัง Exoskeleton", icon: "🦾", price: 75000, bonus: 0.85, durability: 10, desc: "• เทคโนโลยีไฮดรอลิกเสริมแรง\n• โบนัสรางวัล +85%\n• ความทนทาน: 10 ครั้ง" },
+            { id: 'thermal_vision', name: "กล้องตรวจจับ X-Ray", icon: "👓", price: 42000, bonus: 0.55, durability: 7, desc: "• มองทะลุสิ่งกีดขวาง\n• โบนัสรางวัล +55%\n• ความทนทาน: 7 ครั้ง" },
+            { id: 'tactical_humvee', name: "รถหุ้มเกราะ Humvee", icon: "🚔", price: 250000, bonus: 1.50, durability: 15, desc: "• พาหนะจู่โจมเต็มรูปแบบ\n• โบนัสรางวัล +150%\n• ความทนทาน: 15 ครั้ง" },
+            { id: 'satellite_strike', name: "ระบบชี้เป้าดาวเทียม", icon: "🛰️", price: 500000, bonus: 3.50, durability: 3, desc: "• สนับสนุนจากวงโคจร\n• โบนัสรางวัล +350% (โคตรโหด)\n• ความทนทาน: 3 ครั้ง (หายาก)" }
+        ];
+
+        function renderItems() {
+            const list = document.getElementById('item-list');
+            list.innerHTML = '';
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                    <span class="item-icon">${item.icon}</span>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price">฿ ${item.price.toLocaleString()}</div>
+                `;
+                card.onclick = () => openConfirm(item);
+                list.appendChild(card);
+            });
+        }
+
+        function openConfirm(item) {
+            document.getElementById('m-icon').innerText = item.icon;
+            document.getElementById('m-title').innerText = item.name;
+            document.getElementById('m-detail').innerText = item.desc;
+            document.getElementById('confirm-modal').style.display = 'flex';
+            document.getElementById('buy-action-btn').onclick = () => executeBuy(item);
+        }
+
+        function executeBuy(item) {
+            if (currentMoney < item.price) {
+                alert("งบประมาณของท่าน CEO ไม่เพียงพอ!");
+                return;
+            }
+
+            // จ่ายเงิน
+            currentMoney -= item.price;
+            localStorage.setItem('police_money', currentMoney);
+            updateMoney();
+
+            // เพิ่มเข้าคลัง (Inventory)
+            let inventory = JSON.parse(localStorage.getItem('user_inventory')) || [];
+            inventory.push({ 
+                id: item.id, 
+                name: item.name, 
+                bonus: item.bonus, 
+                durability: item.durability,
+                status: "active" 
+            });
+            localStorage.setItem('user_inventory', JSON.stringify(inventory));
+
+            closeModal('confirm-modal');
+            showSuccess(item);
+        }
+
+        function showSuccess(item) {
+            const usesText = item.durability > 100 ? "ไม่จำกัด (ถาวร)" : `${item.durability} ครั้ง`;
+            const content = `
+                <div class="pao-calc-box">
+                    <div class="pao-stat-row"><span>🔧 อุปกรณ์:</span><span>${item.name}</span></div>
+                    <div class="pao-stat-row"><span>✨ โบนัสรางวัล:</span><span style="color:#00ff88;">+${(item.bonus * 100).toFixed(0)}%</span></div>
+                    <div class="pao-stat-row"><span>⏳ ความทนทาน:</span><span style="color:#ffcc00;">${usesText}</span></div> 
+                    <hr style="border:0.5px solid #222; margin:10px 0;">
+                    <div class="pao-stat-row" style="color:#888; font-size:11px;"><span>📦 สถานะ:</span><span>ส่งเข้าห้องแต่งตัวแล้ว</span></div>
+                </div>
+            `;
+            document.getElementById('s-content').innerHTML = content;
+            document.getElementById('success-modal').style.display = 'flex';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        renderItems();
+    </script>
+</body>
+</html>

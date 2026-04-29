@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POLICE SIMULATOR - ระบบฐานข้อมูลกลาง</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #04090f;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Kanit', sans-serif;
+            overflow: hidden;
+        }
+        /* พื้นหลังแสงไซเรนจางๆ */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #002b5c 0%, #04090f 80%);
+            z-index: -1;
+        }
+
+        .login-card {
+            width: 90%;
+            max-width: 360px;
+            background: rgba(10, 20, 30, 0.95);
+            padding: 40px 25px;
+            border-radius: 20px;
+            border-top: 4px solid #00d4ff;
+            border-bottom: 4px solid #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+            text-align: center;
+        }
+
+        .badge { font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 10px #00d4ff); }
+        
+        h2 { color: #fff; margin: 0; letter-spacing: 2px; font-size: 22px; }
+        .subtitle { color: #00d4ff; font-size: 11px; margin-bottom: 30px; letter-spacing: 1px; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { color: #888; font-size: 12px; margin-left: 5px; }
+        
+        input {
+            width: 100%;
+            background: #050a0f;
+            border: 1px solid #005f73;
+            padding: 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            margin-top: 5px;
+        }
+        input:focus { border-color: #00d4ff; box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+
+        .btn-access {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #005f73, #00d4ff);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        /* --- ระบบป๊อปอัพ (Modal) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-box {
+            width: 85%;
+            max-width: 300px;
+            background: #111;
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            animation: zoomIn 0.3s ease;
+        }
+        @keyframes zoomIn { from { transform: scale(0.5); } to { transform: scale(1); } }
+        
+        .modal-icon { font-size: 40px; margin-bottom: 10px; }
+        .modal-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #fff; }
+        
+        .modal-desc { 
+            font-size: 15px; 
+            color: #ccc; 
+            margin-bottom: 20px; 
+            line-height: 1.8; 
+            white-space: pre-line; 
+            text-align: center;
+        }
+        
+        .modal-btn {
+            background: #00d4ff; color: #000; border: none;
+            padding: 10px 25px; border-radius: 5px; font-weight: bold; cursor: pointer;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="badge">🛡️</div>
+        <h2>ศูนย์รับแจ้งเหตุกลาง</h2>
+        <div class="subtitle">CENTRAL POLICE DATABASE</div>
+        
+        <div class="input-group">
+            <label>OFFICER ID</label>
+            <input type="text" id="officer_id" placeholder="ระบุเลขรหัสประจำตัว">
+        </div>
+        
+        <div class="input-group">
+            <label>ACCESS CODE</label>
+            <input type="password" id="pass" placeholder="ระบุรหัสผ่านเข้าถึง">
+        </div>
+        
+        <button class="btn-access" onclick="handleLogin()">ตรวจสอบสิทธิ์</button>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <div id="m-icon" class="modal-icon"></div>
+            <div id="m-title" class="modal-title"></div>
+            <div id="m-desc" class="modal-desc"></div>
+            <button class="modal-btn" onclick="closeModal()">ตกลง</button>
+        </div>
+    </div>
+
+    <script>
+        // เก็บสถานะการล็อคอิน
+        let loginSuccess = false;
+
+        function showModal(title, desc, icon, success) {
+            document.getElementById('m-title').innerText = title;
+            document.getElementById('m-desc').innerText = desc;
+            document.getElementById('m-icon').innerText = icon;
+            document.getElementById('modal').style.display = 'flex';
+            
+            const box = document.querySelector('.modal-box');
+            box.style.borderColor = success ? '#00d4ff' : '#ff4d4d';
+            
+            // อัปเดตสถานะความสำเร็จ
+            loginSuccess = success;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            
+            // ถ้าล็อคอินสำเร็จ ให้เปลี่ยนหน้าไปยัง dashboard.html ทันทีที่ปิดป๊อปอัพ
+            if (loginSuccess) {
+                window.location.href = "dashboard.html";
+            }
+        }
+
+        function handleLogin() {
+            const id = document.getElementById('officer_id').value;
+            const pass = document.getElementById('pass').value;
+
+            if(id === "1234" && pass === "9999") {
+                showModal(
+                    "ยืนยันตัวตนสำเร็จ", 
+                    `ยินดีต้อนรับเจ้าหน้าที่ PAO
+                    สถานะ: กำลังปฏิบัติการ
+                    สังกัด: หน่วยปฏิบัติการพิเศษ`, 
+                    "✅", true
+                );
+            } else {
+                showModal(
+                    "การเข้าถึงถูกปฏิเสธ", 
+                    `ไม่พบรหัสเจ้าหน้าที่ในระบบ
+                    โปรดตรวจสอบรหัสผ่านอีกครั้ง`, 
+                    "⚠️", false
+                );
+            }
+        }
+    </script>
+</body>
+</html>

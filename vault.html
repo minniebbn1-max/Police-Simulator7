@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POLICE VAULT - ห้องนิรภัยเก็บหลักฐาน</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #020508;
+            color: #fff;
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* หัวข้อสไตล์ระบบความปลอดภัย */
+        .vault-banner {
+            width: 100%;
+            max-width: 500px;
+            background: #001a33;
+            border-left: 5px solid #00d4ff;
+            padding: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .banner-info h2 { margin: 0; font-size: 18px; color: #00d4ff; }
+        .banner-info p { margin: 5px 0 0; font-size: 11px; color: #666; }
+
+        .scan-line {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #00d4ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            animation: scan 2s infinite;
+        }
+        @keyframes scan { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.3; transform: scale(1.1); }
+        }
+
+        /* ตู้โชว์กระจก */
+        .evidence-grid {
+            width: 100%;
+            max-width: 500px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .exhibit-case {
+            background: linear-gradient(145deg, #0a1018, #050a0f);
+            border: 1px solid #1a2a3a;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            transition: 0.4s;
+        }
+
+        /* สถานะล็อก */
+        .exhibit-case.locked { opacity: 0.4; filter: blur(1px); }
+        .locked::before {
+            content: "UNRESOLVED CASE";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background: #ff4d4d;
+            color: #000;
+            font-size: 10px;
+            padding: 2px 10px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        /* สถานะได้ของแล้ว */
+        .exhibit-case.unlocked {
+            border-color: #00d4ff;
+            box-shadow: inset 0 0 15px rgba(0, 212, 255, 0.1);
+        }
+
+        .icon-box {
+            font-size: 45px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+        }
+
+        .exhibit-name { font-size: 14px; font-weight: bold; color: #00d4ff; }
+        .exhibit-desc { font-size: 10px; color: #555; margin-top: 5px; }
+
+        .back-btn {
+            margin-top: 30px;
+            background: #00d4ff;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="vault-banner">
+        <div class="banner-info">
+            <h2>EVIDENCE VAULT</h2>
+            <p>คลังเก็บวัตถุพยานและของกลางคดีสำคัญ</p>
+        </div>
+        <div class="scan-line">🛰️</div>
+    </div>
+
+    <div class="evidence-grid">
+        <div class="exhibit-case unlocked">
+            <div class="icon-box">💎</div>
+            <div class="exhibit-name">เพชร Hope Diamond</div>
+            <div class="exhibit-desc">ยึดได้จากคดีชิงทรัพย์เขต 04</div>
+        </div>
+
+        <div class="exhibit-case unlocked">
+            <div class="icon-box">⌚</div>
+            <div class="exhibit-name">Patek Philippe</div>
+            <div class="exhibit-desc">ของกลางจากเจ้าพ่อค้ายา</div>
+        </div>
+
+        <div class="exhibit-case locked">
+            <div class="icon-box">🧱</div>
+            <div class="exhibit-name">ทองคำแท่งบริสุทธิ์</div>
+            <div class="exhibit-desc">ยังไม่ถูกค้นพบ</div>
+        </div>
+
+        <div class="exhibit-case locked">
+            <div class="icon-box">📜</div>
+            <div class="exhibit-name">โฉนดที่ดินลับ</div>
+            <div class="exhibit-desc">รอการทำลายหลักฐาน</div>
+        </div>
+    </div>
+
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">ปิดระบบคลังหลักฐาน</button>
+
+</body>
+</html>

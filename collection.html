@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POLICE COLLECTION - หอเกียรติยศ</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #050a0f;
+            color: #fff;
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .collection-header {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(90deg, #ffcc00, #aa8800);
+            color: #000;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+        }
+
+        .tab-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: #111;
+            border: 1px solid #333;
+            color: #888;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: #ffcc00;
+            color: #000;
+            border-color: #ffcc00;
+        }
+
+        .grid-container {
+            width: 100%;
+            max-width: 500px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .trophy-card {
+            background: rgba(20, 25, 35, 0.8);
+            border: 1px dashed #444;
+            aspect-ratio: 1/1;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .trophy-card.owned {
+            border: 1px solid #ffcc00;
+            background: radial-gradient(circle, #222 0%, #050a0f 100%);
+        }
+
+        .trophy-icon { font-size: 35px; opacity: 0.2; }
+        .owned .trophy-icon { opacity: 1; filter: drop-shadow(0 0 5px #ffcc00); }
+
+        .trophy-name { font-size: 10px; margin-top: 5px; color: #666; text-align: center; }
+        .owned .trophy-name { color: #fff; }
+
+        .price-tag {
+            font-size: 9px;
+            background: #ffcc00;
+            color: #000;
+            padding: 2px 5px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <button onclick="location.href='dashboard.html'" style="align-self: flex-start; background:none; border:none; color:#ffcc00; cursor:pointer; margin-bottom:10px;">⬅️ กลับศูนย์บัญชาการ</button>
+
+    <div class="collection-header">🏆 หอเกียรติยศและของสะสมหายาก</div>
+
+    <div class="tab-menu">
+        <button class="tab-btn active">ของกลางที่ยึดได้</button>
+        <button class="tab-btn">ตลาดมืด (V.I.P)</button>
+    </div>
+
+    <div class="grid-container" id="collection-grid">
+        <div class="trophy-card owned">
+            <span class="trophy-icon">💎</span>
+            <span class="trophy-name">เพชรพันล้าน</span>
+        </div>
+        <div class="trophy-card">
+            <span class="trophy-icon">🚗</span>
+            <span class="trophy-name">Supercar</span>
+            <span class="price-tag">฿ 50M</span>
+        </div>
+        <div class="trophy-card">
+            <span class="trophy-icon">🚁</span>
+            <span class="trophy-name">Chopper</span>
+            <span class="price-tag">฿ 150M</span>
+        </div>
+        <div class="trophy-card owned">
+            <span class="trophy-icon">⌚</span>
+            <span class="trophy-name">Rolex คนร้าย</span>
+        </div>
+        <div class="trophy-card">
+            <span class="trophy-icon">🏯</span>
+            <span class="trophy-name">บ้านพัก CEO</span>
+            <span class="price-tag">฿ 500M</span>
+        </div>
+        <div class="trophy-card">
+            <span class="trophy-icon">✈️</span>
+            <span class="trophy-name">เครื่องบินเจ็ท</span>
+            <span class="price-tag">฿ 1.2B</span>
+        </div>
+    </div>
+
+    <p style="color: #444; font-size: 12px; margin-top: 30px; text-align: center;">
+        *ของกลางจะได้รับจากการสุ่มเมื่อทำภารกิจสำเร็จแบบยอดเยี่ยมเท่านั้น*
+    </p>
+
+</body>
+</html>

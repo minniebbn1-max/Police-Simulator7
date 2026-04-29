@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POLICE DASHBOARD - ศูนย์บัญชาการ</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #04090f;
+            color: #fff;
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header-profile {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(135deg, #001f3f, #000);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #00d4ff;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .rank-tag {
+            background: #00d4ff;
+            color: #000;
+            padding: 2px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .officer-name { font-size: 24px; font-weight: bold; margin: 0; color: #fff; }
+        .money-display { font-size: 20px; color: #00ff88; font-weight: bold; margin-top: 5px; }
+
+        .stats-container {
+            width: 100%;
+            max-width: 400px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(16, 24, 32, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #222;
+        }
+        .bar-bg { background: #333; height: 8px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
+        .bar-fill-hp { background: #ff4d4d; width: 100%; height: 100%; border-radius: 5px; box-shadow: 0 0 10px #ff4d4d; }
+        .bar-fill-stamina { background: #ffcc00; width: 80%; height: 100%; border-radius: 5px; box-shadow: 0 0 10px #ffcc00; }
+
+        .menu-grid {
+            width: 100%;
+            max-width: 400px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .menu-btn {
+            background: #16212e;
+            border: 1px solid #00d4ff;
+            padding: 18px;
+            border-radius: 12px;
+            color: #fff;
+            text-align: left;
+            font-size: 17px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .menu-btn:active { transform: scale(0.97); }
+        .btn-icon { margin-right: 15px; font-size: 22px; }
+
+        /* ปุ่ม Casino Style (ผสมสีทอง-ดำ) */
+        .btn-casino {
+            background: linear-gradient(45deg, #d4af37, #000) !important;
+            border: 1px solid #f9e29c !important;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+            font-weight: bold;
+        }
+
+        .vip-entry-btn {
+            width: 100%; max-width: 400px; padding: 20px; 
+            background: linear-gradient(135deg, #d4af37, #8a6d3b); 
+            color: #000 !important; border: none; border-radius: 15px; 
+            font-weight: bold; font-size: 18px; cursor: pointer; 
+            margin-top: 15px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            display: none; justify-content: center; align-items: center; gap: 10px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); display: none;
+            justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-box {
+            width: 85%; max-width: 320px; background: #0a0e14;
+            border: 2px solid #00d4ff; border-radius: 15px; padding: 25px;
+            text-align: center; animation: zoomIn 0.3s ease;
+        }
+        @keyframes zoomIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-icon { font-size: 40px; margin-bottom: 10px; }
+        .modal-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #fff; }
+        .modal-desc { font-size: 14px; color: #ccc; margin-bottom: 20px; line-height: 1.6; white-space: pre-line; }
+        .modal-btn { background: #00d4ff; color: #000; border: none; padding: 10px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="header-profile">
+        <div class="rank-tag">EXECUTIVE CEO</div>
+        <p class="officer-name">เจ้าหน้าที่: PAO (ID: 1234)</p>
+        <div id="display-money" class="money-display">งบประมาณ: 0 ฿</div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <label style="font-size: 12px; color: #888;">พลังกาย (HP)</label>
+            <div class="bar-bg"><div class="bar-fill-hp"></div></div>
+        </div>
+        <div class="stat-card">
+            <label style="font-size: 12px; color: #888;">ความอึด (STM)</label>
+            <div class="bar-bg"><div class="bar-fill-stamina"></div></div>
+        </div>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-btn" onclick="openMission()">
+            <span class="btn-icon">🛡️</span>
+            <span>รับงานปฏิบัติการ</span>
+        </div>
+        
+        <div class="menu-btn btn-casino" onclick="openCasino()">
+            <span class="btn-icon">🎰</span>
+            <span>ORC LUXURY CASINO</span>
+        </div>
+
+        <div class="menu-btn" onclick="openArmory()">
+            <span class="btn-icon">🔫</span>
+            <span>คลังอุปกรณ์/อาวุธ</span>
+        </div>
+        <div class="menu-btn" onclick="openLocker()">
+            <span class="btn-icon">👤</span>
+            <span>ห้องแต่งตัวและร้านค้า</span>
+        </div>
+        
+        <div class="menu-btn" style="border-color: #ffcc00; color: #ffcc00;" onclick="openVault()">
+            <span class="btn-icon">🏛️</span>
+            <span>คลังเก็บของกลาง (Vault)</span>
+        </div>
+
+        <div class="menu-btn" style="border-color: #ff4d4d; color: #ff4d4d;" onclick="openDatabase()">
+            <span class="btn-icon">📁</span>
+            <span>ฐานข้อมูลอาชญากร (Database)</span>
+        </div>
+    </div>
+
+    <button id="vip-button" class="vip-entry-btn" onclick="enterVIP()">
+        💎 THE VELVET LOUNGE (VIP ONLY)
+    </button>
+
+    <div class="menu-btn" style="width:100%; max-width:400px; border-color: #ff4d4d; color: #ff4d4d; margin-top: 15px;" onclick="location.href='index.html'">
+        <span class="btn-icon">🚪</span>
+        <span>ออกจากระบบ</span>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <div id="m-icon" class="modal-icon"></div>
+            <div id="m-title" class="modal-title"></div>
+            <div id="m-desc" class="modal-desc"></div>
+            <button id="m-confirm-btn" class="modal-btn">ตกลง</button>
+        </div>
+    </div>
+
+    <script>
+        function loadMoney() {
+            const savedMoney = parseInt(localStorage.getItem('police_money')) || 0;
+            document.getElementById('display-money').innerText = "งบประมาณ: " + savedMoney.toLocaleString() + " ฿";
+            
+            const vipBtn = document.getElementById('vip-button');
+            if (savedMoney >= 3000000) {
+                vipBtn.style.display = 'flex';
+            } else {
+                vipBtn.style.display = 'none';
+            }
+        }
+
+        loadMoney();
+
+        function showModal(title, desc, icon, callback) {
+            document.getElementById('m-title').innerText = title;
+            document.getElementById('m-desc').innerText = desc;
+            document.getElementById('m-icon').innerText = icon;
+            document.getElementById('modal').style.display = 'flex';
+            const btn = document.getElementById('m-confirm-btn');
+            btn.onclick = function() {
+                document.getElementById('modal').style.display = 'none';
+                if(callback) callback();
+            };
+        }
+
+        // ฟังก์ชันเปิด Casino พร้อม Modal
+        function openCasino() {
+            showModal("ORC CASINO", "ยินดีต้อนรับสู่แหล่งบันเทิงระดับสูง...\nสับไพ่รอเรียบร้อย เชิญเข้าเสี่ยงโชคครับ", "🎰", () => {
+                window.location.href = "casino.html";
+            });
+        }
+
+        function openMission() { showModal("ศูนย์รับแจ้งเหตุ", "กำลังเชื่อมต่อสัญญาณวิทยุ...\nกดตกลงเพื่อเข้าสู่หน้าปฏิบัติการ", "🚨", () => window.location.href = "mission.html"); }
+        function openArmory() { showModal("คลังอุปกรณ์และอาวุธ", "เข้าสู่ระบบคลังแสงส่วนกลาง...\nตรวจสอบอาวุธยุทธวิธี", "🛡️", () => window.location.href = "armory.html"); }
+        function openLocker() { showModal("ห้องแต่งตัวเจ้าหน้าที่", "เข้าสู่ระบบตรวจสอบสถานะบุคคล...\nเพื่อสวมใส่อุปกรณ์", "👤", () => window.location.href = "locker.html"); }
+        function openVault() { showModal("คลังนิรภัยเก็บของกลาง", "สแกนลายนิ้วมือ...\nเข้าสู่ห้องนิรภัยความลับสูง", "🏛️", () => window.location.href = "vault.html"); }
+        function openDatabase() { showModal("ระบบสืบสวนกลาง", "เชื่อมต่อฐานข้อมูล Interpol...\nตรวจสอบรายชื่อบุคคลอันตราย", "📁", () => window.location.href = "database.html"); }
+        function enterVIP() { showModal("THE VELVET LOUNGE", "ผ่านการตรวจสอบสถานะการเงิน!\nเชิญเข้าสู่เขต VIP ครับ", "💎", () => window.location.href = "vip_lounge.html"); }
+    </script>
+
+</body>
+</html>

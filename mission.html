@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POLICE MISSION - EXECUTIVE CEO PAO</title>
+    <style>
+        /* --- CSS เดิมทั้งหมดของท่าน --- */
+        * { box-sizing: border-box; }
+        body {
+            background-color: #04090f; color: #fff; font-family: 'Kanit', sans-serif;
+            margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center;
+        }
+        .mission-header {
+            width: 100%; max-width: 400px; background: #ff4d4d; color: #000;
+            padding: 10px; text-align: center; font-weight: bold; border-radius: 10px; margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.4); animation: blink 1s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.7; } }
+        .mission-card {
+            width: 100%; max-width: 400px; background: rgba(16, 24, 32, 0.95);
+            border: 1px solid #00d4ff; border-radius: 20px; padding: 25px; margin-bottom: 20px;
+        }
+        .mission-title { font-size: 22px; color: #00d4ff; margin-bottom: 10px; font-weight: bold; }
+        .mission-info { font-size: 15px; color: #ccc; line-height: 1.6; margin-bottom: 20px; }
+        .reward-tag { color: #00ff88; font-weight: bold; font-size: 14px; margin-bottom: 20px; }
+        .action-btn {
+            width: 100%; padding: 15px; border-radius: 10px; border: none;
+            font-weight: bold; cursor: pointer; font-size: 16px; margin-bottom: 10px; transition: 0.2s;
+        }
+        .btn-talk { background: #555; color: #fff; }
+        .btn-fight { background: #00d4ff; color: #000; }
+        .btn-back { background: none; border: 1px solid #444; color: #888; font-size: 14px; margin-top: 10px; }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 9, 15, 0.98); display: none;
+            flex-direction: column; justify-content: center; align-items: center; z-index: 999;
+        }
+        .police-badge { font-size: 80px; animation: spinBadge 2s linear infinite; filter: drop-shadow(0 0 20px #00d4ff); margin-bottom: 20px; }
+        @keyframes spinBadge { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+        .loading-bar-fill { width: 0%; height: 100%; background: #00d4ff; transition: width 7s linear; }
+        .report-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px;
+        }
+        .report-box { background: #111; border: 2px solid #00d4ff; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
+        .calc-box { background: #080c12; padding: 15px; border-radius: 10px; text-align: left; margin: 15px 0; font-size: 14px; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="loading-overlay" id="loading-screen">
+        <div class="police-badge">🛡️</div>
+        <div id="status-update" style="margin-bottom:15px; color:#00d4ff;">กำลังเข้าควบคุมพื้นที่...</div>
+        <div style="width:250px; height:8px; background:#222; border-radius:5px; overflow:hidden; border: 1px solid #00d4ff;">
+            <div class="loading-bar-fill" id="progress-bar"></div>
+        </div>
+        <p style="font-size: 10px; color: #555; margin-top: 10px;">กรุณารอการยืนยันพิกัด (7s)</p>
+    </div>
+
+    <div class="mission-header">⚠️ ยืนยันคำสั่งปฏิบัติการ ⚠️</div>
+
+    <div class="mission-card">
+        <div id="m-title" class="mission-title">กำลังโหลด...</div>
+        <div id="m-info" class="mission-info">...</div>
+        <div id="m-reward" class="reward-tag"></div>
+        
+        <button class="action-btn btn-talk" onclick="startProcess('talk')">💬 เจรจาระงับเหตุ</button>
+        <button class="action-btn btn-fight" onclick="startProcess('fight')">🔫 จู่โจมจับกุม</button>
+    </div>
+
+    <button class="action-btn btn-back" style="max-width:400px;" onclick="location.href='dashboard.html'">ย้อนกลับ</button>
+
+    <div class="report-overlay" id="report">
+        <div class="report-box">
+            <h3 id="r-title" style="margin:0; color:#00ff88;">MISSION COMPLETE</h3>
+            <div class="calc-box">
+                <p>🔧 <b>อุปกรณ์ที่ใช้:</b> <span id="r-item" style="color:#ffcc00;">-</span></p>
+                <hr style="border:0.5px solid #222;">
+                <p>💰 ค่าแรงพื้นฐาน: <span id="r-base">0</span> ฿</p>
+                <p>✨ โบนัสไอเทม: <span id="r-bonus" style="color:#00ff88;">+0</span> ฿</p>
+                <p style="font-size:18px; margin-top:10px; font-weight:bold; color:#ff4d4d;">
+                    💵 ยอดรับสุทธิ: <span id="r-total">0</span> ฿
+                </p>
+            </div>
+            <button class="action-btn btn-fight" onclick="location.reload()">รับงานต่อไป</button>
+            <button class="action-btn btn-talk" style="background:#222; color:#888;" onclick="location.href='dashboard.html'">กลับศูนย์บัญชาการ</button>
+        </div>
+    </div>
+
+    <script>
+        // ฟังก์ชันหักของออกจากคลังแสงจริง
+        function consumeLockerItem(itemName) {
+            let inventory = JSON.parse(localStorage.getItem('user_inventory')) || [];
+            let itemIndex = inventory.findIndex(item => item.name === itemName);
+
+            if (itemIndex !== -1) {
+                if (inventory[itemIndex].durability > 0) {
+                    inventory[itemIndex].durability -= 1; 
+                    localStorage.setItem('user_inventory', JSON.stringify(inventory));
+                    console.log(`[SYSTEM] หักการใช้งาน ${itemName} เรียบร้อย`);
+                }
+            }
+        }
+
+        const missions = [
+            { title: "สกัดจับแก๊งซิ่ง", info: "พบกลุ่มวัยรุ่นปิดถนนแข่งรถสร้างความเดือดร้อน", reward: 2500 },
+            { title: "ชิงทรัพย์ร้านทอง", info: "คนร้ายมีอาวุธปืนกบดานในอาคารร้าง", reward: 15000 },
+            { title: "ทลายบ่อนพนัน", info: "สายลับแจ้งพบการเปิดบ่อนผิดกฎหมายกลางเมือง", reward: 45000 }
+        ];
+
+        let currentMission = missions[Math.floor(Math.random() * missions.length)];
+        document.getElementById('m-title').innerText = currentMission.title;
+        document.getElementById('m-info').innerText = currentMission.info;
+        document.getElementById('m-reward').innerText = "งบเบื้องต้น: " + currentMission.reward.toLocaleString() + " ฿";
+
+        function startProcess(type) {
+            const screen = document.getElementById('loading-screen');
+            const bar = document.getElementById('progress-bar');
+            screen.style.display = 'flex';
+            setTimeout(() => { bar.style.width = '100%'; }, 100);
+
+            setTimeout(() => {
+                screen.style.display = 'none';
+                calculateFinalReward(type);
+            }, 7000);
+        }
+
+        // ฟังก์ชันคำนวณเงินและเช็คไอเทมล่าสุด
+        function calculateFinalReward(type) {
+            let baseReward = currentMission.reward;
+            if (type === 'talk') baseReward *= 0.7;
+
+            let inventory = JSON.parse(localStorage.getItem('user_inventory')) || [];
+            
+            // เช็คทั้งสถานะ 'equipped' และค่า boolean 'equipped: true' เพื่อความชัวร์
+            let activeItem = inventory.find(item => item.status === "equipped" || item.equipped === true); 
+            
+            let bonusAmount = 0;
+            let itemName = "มือเปล่า (ไม่มีโบนัส)";
+
+            if (activeItem) {
+                if (activeItem.durability > 0) {
+                    itemName = activeItem.name;
+                    
+                    // ตั้งค่าตัวคูณโบนัส
+                    let multiplier = 0;
+                    if (itemName.includes("ระบบชี้เป้าดาวเทียม")) {
+                        multiplier = 3.5; 
+                    } else if (itemName.includes("รถหุ้มเกราะ Humvee")) {
+                        multiplier = 0.5;
+                    } else {
+                        multiplier = activeItem.bonus || 0.2;
+                    }
+
+                    bonusAmount = Math.floor(baseReward * multiplier);
+                    
+                    // หักจำนวนการใช้งาน
+                    consumeLockerItem(itemName);
+                }
+            }
+
+            let total = baseReward + bonusAmount;
+            let currentMoney = parseInt(localStorage.getItem('police_money')) || 0;
+            localStorage.setItem('police_money', currentMoney + total);
+
+            document.getElementById('r-item').innerText = itemName;
+            document.getElementById('r-base').innerText = baseReward.toLocaleString();
+            document.getElementById('r-bonus').innerText = "+" + bonusAmount.toLocaleString();
+            document.getElementById('r-total').innerText = total.toLocaleString();
+            
+            document.getElementById('report').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
