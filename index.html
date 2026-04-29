@@ -162,9 +162,9 @@
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
             
-            // ถ้าล็อคอินสำเร็จ ให้เปลี่ยนหน้าไปยัง dashboard.html ทันทีที่ปิดป๊อปอัพ
+            // แก้ไขตรงนี้: ถ้าล็อคอินสำเร็จ ให้เปลี่ยนหน้าไปยัง lobby.html แทน dashboard.html
             if (loginSuccess) {
-                window.location.href = "dashboard.html";
+                window.location.href = "lobby.html";
             }
         }
 
