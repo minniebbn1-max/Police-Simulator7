@@ -16,7 +16,6 @@
             font-family: 'Kanit', sans-serif;
             overflow: hidden;
         }
-        /* พื้นหลังแสงไซเรนจางๆ */
         body::before {
             content: "";
             position: absolute;
@@ -24,7 +23,6 @@
             background: radial-gradient(circle at 50% 50%, #002b5c 0%, #04090f 80%);
             z-index: -1;
         }
-
         .login-card {
             width: 90%;
             max-width: 360px;
@@ -36,15 +34,11 @@
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
             text-align: center;
         }
-
         .badge { font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 10px #00d4ff); }
-        
         h2 { color: #fff; margin: 0; letter-spacing: 2px; font-size: 22px; }
         .subtitle { color: #00d4ff; font-size: 11px; margin-bottom: 30px; letter-spacing: 1px; }
-
         .input-group { margin-bottom: 15px; text-align: left; }
         label { color: #888; font-size: 12px; margin-left: 5px; }
-        
         input {
             width: 100%;
             background: #050a0f;
@@ -57,7 +51,6 @@
             margin-top: 5px;
         }
         input:focus { border-color: #00d4ff; box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
-
         .btn-access {
             width: 100%;
             padding: 16px;
@@ -71,8 +64,6 @@
             margin-top: 10px;
             transition: 0.3s;
         }
-
-        /* --- ระบบป๊อปอัพ (Modal) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -93,10 +84,8 @@
             animation: zoomIn 0.3s ease;
         }
         @keyframes zoomIn { from { transform: scale(0.5); } to { transform: scale(1); } }
-        
         .modal-icon { font-size: 40px; margin-bottom: 10px; }
         .modal-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #fff; }
-        
         .modal-desc { 
             font-size: 15px; 
             color: #ccc; 
@@ -105,7 +94,6 @@
             white-space: pre-line; 
             text-align: center;
         }
-        
         .modal-btn {
             background: #00d4ff; color: #000; border: none;
             padding: 10px 25px; border-radius: 5px; font-weight: bold; cursor: pointer;
@@ -143,7 +131,6 @@
     </div>
 
     <script>
-        // เก็บสถานะการล็อคอิน
         let loginSuccess = false;
 
         function showModal(title, desc, icon, success) {
@@ -151,18 +138,14 @@
             document.getElementById('m-desc').innerText = desc;
             document.getElementById('m-icon').innerText = icon;
             document.getElementById('modal').style.display = 'flex';
-            
             const box = document.querySelector('.modal-box');
             box.style.borderColor = success ? '#00d4ff' : '#ff4d4d';
-            
-            // อัปเดตสถานะความสำเร็จ
             loginSuccess = success;
         }
 
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
-            
-            // ถ้าล็อคอินสำเร็จ ให้เปลี่ยนหน้าไปยัง dashboard.html ทันทีที่ปิดป๊อปอัพ
+            // แก้ไข: เปลี่ยนกลับไปที่ dashboard.html เพื่อเข้าหน้าเมนูหลักตามเดิม
             if (loginSuccess) {
                 window.location.href = "dashboard.html";
             }
@@ -171,26 +154,12 @@
         function handleLogin() {
             const id = document.getElementById('officer_id').value;
             const pass = document.getElementById('pass').value;
-
             if(id === "1234" && pass === "9999") {
-                showModal(
-                    "ยืนยันตัวตนสำเร็จ", 
-                    `ยินดีต้อนรับเจ้าหน้าที่ PAO
-                    สถานะ: กำลังปฏิบัติการ
-                    สังกัด: หน่วยปฏิบัติการพิเศษ`, 
-                    "✅", true
-                );
+                showModal("ยืนยันตัวตนสำเร็จ", `ยินดีต้อนรับเจ้าหน้าที่ PAO\nสถานะ: กำลังปฏิบัติการ\nสังกัด: หน่วยปฏิบัติการพิเศษ`, "✅", true);
             } else {
-                showModal(
-                    "การเข้าถึงถูกปฏิเสธ", 
-                    `ไม่พบรหัสเจ้าหน้าที่ในระบบ
-                    โปรดตรวจสอบรหัสผ่านอีกครั้ง`, 
-                    "⚠️", false
-                );
+                showModal("การเข้าถึงถูกปฏิเสธ", `ไม่พบรหัสเจ้าหน้าที่ในระบบ\nโปรดตรวจสอบรหัสผ่านอีกครั้ง`, "⚠️", false);
             }
         }
     </script>
 </body>
 </html>
-
-
